@@ -7,7 +7,7 @@ import { publicClient } from "@/wagmi.config";
 import {
   Implementation,
   toMetaMaskSmartAccount,
-  createRootDelegation,
+  createDelegation,
   createCaveatBuilder,
   getDelegationHashOffchain,
   type MetaMaskSmartAccount,
@@ -20,7 +20,7 @@ import { FACTORY_CONTRACT_ADDRESS, CREATE_TOKEN_SELECTOR } from "@/constants";
 import {
   DelegationStorageClient,
   DelegationStorageEnvironment,
-} from "@metamask/delegation-toolkit";
+} from "@metamask/delegation-toolkit/experimental";
 
 import { Chat } from "./Chat";
 import { bundler, pimlicoClient } from "@/lib/services/bundler";
@@ -203,7 +203,7 @@ export function DelegationManager() {
 
       // Create root delegation with a unique salt
       console.log("Creating root delegation...");
-      const newDelegation = createRootDelegation(
+      const newDelegation = createDelegation(
         aiDelegateAccount.address,
         delegatorAccount.address,
         caveats,

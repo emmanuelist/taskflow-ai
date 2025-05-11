@@ -4,7 +4,7 @@ import {
   DelegationStorageClient,
   DelegationStoreFilter,
   DelegationStorageEnvironment,
-} from "@metamask/delegation-toolkit";
+} from "@metamask/delegation-toolkit/experimental";
 
 let instance: DelegationStorageClient | null = null;
 
