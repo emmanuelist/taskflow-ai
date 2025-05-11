@@ -5,10 +5,10 @@ import type {
   ExecutionStruct,
 } from "@metamask/delegation-toolkit";
 import {
-  DelegationStoreFilter,
   DelegationFramework,
   SINGLE_DEFAULT_MODE,
 } from "@metamask/delegation-toolkit";
+import { DelegationStoreFilter } from "@metamask/delegation-toolkit/experimental";
 import { z } from "zod";
 import { encodeFunctionData } from "viem";
 import {
@@ -67,7 +67,12 @@ export async function POST(request: Request) {
               DelegationStoreFilter.Given
             );
 
-            console.log("Delegations: ", result, "Delegate: ", aiSmartAccount.address);
+            console.log(
+              "Delegations: ",
+              result,
+              "Delegate: ",
+              aiSmartAccount.address
+            );
 
             const mode: ExecutionMode = SINGLE_DEFAULT_MODE;
 
@@ -88,11 +93,11 @@ export async function POST(request: Request) {
               ];
 
               const redeemDelegationCalldata =
-                DelegationFramework.encode.redeemDelegations(
-                  [result],
-                  [mode],
-                  [executions]
-                );
+                DelegationFramework.encode.redeemDelegations({
+                  delegations: [result],
+                  modes: [mode],
+                  executions: [executions],
+                });
 
               const { fast: fees } =
                 await pimlicoClient.getUserOperationGasPrice();
