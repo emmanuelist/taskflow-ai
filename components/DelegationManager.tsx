@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
@@ -19,7 +18,6 @@ import { randomBytes } from "crypto";
 import { FACTORY_CONTRACT_ADDRESS, CREATE_TOKEN_SELECTOR } from "@/constants";
 import {
   DelegationStorageClient,
-  DelegationStorageEnvironment,
 } from "@metamask/delegation-toolkit/experimental";
 
 import { Chat } from "./Chat";
@@ -144,8 +142,7 @@ export function DelegationManager() {
     } catch (error: unknown) {
       console.error("Error setting up accounts:", error);
       setError(
-        `Failed to set up accounts: ${
-          error instanceof Error ? error.message : "Unknown error"
+        `Failed to set up accounts: ${error instanceof Error ? error.message : "Unknown error"
         }`
       );
       console.groupEnd();
@@ -203,12 +200,11 @@ export function DelegationManager() {
 
       // Create root delegation with a unique salt
       console.log("Creating root delegation...");
-      const newDelegation = createDelegation(
-        aiDelegateAccount.address,
-        delegatorAccount.address,
+      const newDelegation = createDelegation({
+        from: delegatorAccount.address,
+        to: aiDelegateAccount.address,
         caveats,
-        BigInt(createSalt()) // random hash to identify and not reuse the delegation
-      );
+      });
 
       // Sign the delegation using the delegator account
       console.log("Signing delegation...");
@@ -223,12 +219,20 @@ export function DelegationManager() {
 
       console.log("Delegation signed successfully");
 
-      setDelegation(signedDelegation);
+      // Convert the signedDelegation to match DelegationStruct type
+      setDelegation({
+        ...signedDelegation,
+        salt: typeof signedDelegation.salt === 'string'
+          ? BigInt(signedDelegation.salt)
+          : signedDelegation.salt
+      });
 
       const delegationStorageClient = new DelegationStorageClient({
         apiKey: process.env.NEXT_PUBLIC_DELEGATION_STORAGE_API_KEY!,
         apiKeyId: process.env.NEXT_PUBLIC_DELEGATION_STORAGE_API_KEY_ID!,
-        environment: DelegationStorageEnvironment.dev,
+        environment: {
+          apiUrl: "https://dev-api.delegation.xyz",
+        },
       });
 
       // Store the delegation in the delegation storage service
@@ -284,8 +288,7 @@ export function DelegationManager() {
     } catch (error: unknown) {
       console.error("Error creating delegation:", error);
       setError(
-        `Failed to create delegation: ${
-          error instanceof Error ? error.message : "Unknown error"
+        `Failed to create delegation: ${error instanceof Error ? error.message : "Unknown error"
         }`
       );
       console.groupEnd();
